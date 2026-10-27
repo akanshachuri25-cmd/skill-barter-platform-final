@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SkillSwap — Skill Barter Platform</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%236C4CE0'/%3E%3Ctext x='50' y='66' font-size='54' text-anchor='middle' fill='white' font-family='Arial'%3E%E2%87%84%3C/text%3E%3C/svg%3E" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #FAF7FF;
+    color: #2A1F4D;
+  }
+  .display-font { font-family: 'Fraunces', Georgia, serif; }
+  a { text-decoration: none; }
+
+  /* ---------- TOP NAV ---------- */
+  .topnav {
+    background: linear-gradient(135deg, #6C4CE0 0%, #8B5FE8 100%);
+    padding: 18px 24px;
+  }
+  .topnav-inner {
+    max-width: 1000px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-icon {
+    width: 38px; height: 38px; border-radius: 12px;
+    background: rgba(255,255,255,0.18);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 18px;
+  }
+  .brand h1 { color: white; margin: 0; font-size: 21px; line-height: 1; }
+  .brand p { color: rgba(255,255,255,0.75); margin: 3px 0 0; font-size: 11px; }
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+  .nav-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.15); color: white;
+    padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 500;
+  }
+  .logout-btn {
+    background: rgba(255,255,255,0.92); color: #6C4CE0; border: none;
+    padding: 7px 14px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .nav-avatar {
+    width: 30px; height: 30px; border-radius: 999px; background: white; color: #6C4CE0;
+    display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;
+  }
+  .switch-wrap { position: relative; }
+  .switch-btn {
+    background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.35);
+    padding: 7px 13px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .switch-panel {
+    position: absolute; top: calc(100% + 8px); right: 0; background: white; border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(42,31,77,0.25); border: 1px solid #E5DFF7; width: 240px; z-index: 40;
+    overflow: hidden;
+  }
+  .switch-panel-header { padding: 10px 14px; font-size: 11px; font-weight: 700; color: #8B7FB8; text-transform: uppercase; letter-spacing: .04em; background: #FAF8FF; border-bottom: 1px solid #ECE6F9; }
+  .switch-item {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; border: none;
+    background: white; width: 100%; text-align: left; font-family: inherit;
+  }
+  .switch-item:hover { background: #F7F4FC; }
+  .switch-item .avatar { width: 28px; height: 28px; font-size: 10px; }
+  .switch-item-name { font-size: 13px; font-weight: 600; color: #2A1F4D; }
+  .switch-item-email { font-size: 10.5px; color: #8B7FB8; }
+  .switch-item.current { background: #F1ECFC; }
+  .switch-note { padding: 8px 14px 10px; font-size: 10px; color: #A79BC9; border-top: 1px solid #ECE6F9; line-height: 1.4; }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 24px; }
+  .auth-wrap { max-width: 420px; margin: 40px auto; padding: 0 20px; }
+
+  /* ---------- CARDS / FORMS ---------- */
+  .card {
+    background: white; border: 1px solid #E5DFF7; border-radius: 16px;
+    padding: 22px; margin-bottom: 20px;
+    box-shadow: 0 4px 20px -8px rgba(108,76,224,0.15);
+  }
+  .card-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .card-row h2 { margin: 0; font-size: 18px; }
+  .edit-btn {
+    font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 999px;
+    background: #F1ECFC; color: #6C4CE0; border: none; cursor: pointer;
+  }
+
+  .field-label { font-size: 12px; font-weight: 600; color: #5A4E85; margin: 14px 0 6px; display: block; }
+  .field-label:first-of-type { margin-top: 0; }
+  .field-input {
+    width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #E0D8F5;
+    font-size: 14px; font-family: inherit; outline: none; color: #2A1F4D; background: #FDFCFF;
+  }
+  .field-input:focus { border-color: #6C4CE0; }
+  .password-wrap { position: relative; }
+  .password-wrap .field-input { padding-right: 42px; }
+  .eye-toggle {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; padding: 4px;
+    display: flex; align-items: center; justify-content: center; color: #8B7FB8;
+  }
+  .eye-toggle:hover { color: #6C4CE0; }
+  .field-error { color: #D65D8A; font-size: 12px; margin-top: 6px; }
+  .primary-btn {
+    width: 100%; margin-top: 20px; padding: 12px; border-radius: 12px; border: none;
+    background: #6C4CE0; color: white; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .primary-btn:active { transform: scale(0.98); }
+  .link-btn { background: none; border: none; color: #6C4CE0; font-weight: 600; cursor: pointer; font-size: 13px; padding: 0; }
+  .auth-switch { text-align: center; margin-top: 16px; font-size: 13px; color: #6B5E8F; }
+  .admin-link { text-align: center; margin-top: 10px; }
+  .admin-link button { font-size: 12px; color: #8B7FB8; background: none; border: none; cursor: pointer; }
+  .auth-logo { text-align: center; margin-bottom: 20px; }
+  .auth-logo .brand-icon { margin: 0 auto 10px; background: #F1ECFC; color: #6C4CE0; width: 48px; height: 48px; font-size: 22px; }
+  .auth-logo h1 { color: #2A1F4D; font-size: 26px; margin: 0; }
+  .auth-logo p { color: #8B7FB8; font-size: 13px; margin-top: 4px; }
+  .auth-stats { display: flex; justify-content: center; gap: 22px; margin: 18px 0 0; font-size: 12px; color: #8B7FB8; }
+  .auth-stats b { color: #2A1F4D; font-size: 15px; display: block; }
+
+  .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .skills-grid { grid-template-columns: 1fr; } }
+  .skills-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: #8B7FB8; margin-bottom: 8px; }
+  .chip-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font-size: 12px; padding: 6px 12px; border-radius: 999px; font-weight: 500;
+    background: #F1ECFC; color: #6C4CE0; border: none; cursor: pointer; transition: all .15s ease;
+  }
+  .chip.teach-on { background: #3E9C6E; color: white; }
+  .chip.learn-on { background: #D65D8A; color: white; }
+  .chip:active { transform: scale(0.95); }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 500;
+    background: white; color: #6C4CE0; border: 1px solid #E5DFF7; cursor: pointer;
+  }
+  .tab-btn.active { background: #2A1F4D; color: white; border-color: #2A1F4D; }
+  .tab-badge {
+    font-size: 10px; font-weight: 700; padding: 0 6px; border-radius: 999px;
+    background: #D65D8A; color: white;
+  }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .match-card { background: white; border: 1px solid #E5DFF7; border-radius: 16px; padding: 16px; }
+  .avatar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .avatar {
+    width: 40px; height: 40px; border-radius: 999px; color: white; font-weight: 700; font-size: 13px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .user-name { font-weight: 600; font-size: 14px; margin: 0; }
+  .user-rating { font-size: 12px; color: #8B7FB8; display: flex; align-items: center; gap: 3px; margin-top: 2px; }
+  .match-line { font-size: 12px; margin: 4px 0; }
+  .match-line.give { color: #3E9C6E; }
+  .match-line.want { color: #D65D8A; }
+  .swap-btn {
+    width: 100%; margin-top: 10px; padding: 9px; border-radius: 12px; border: none;
+    background: #6C4CE0; color: white; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .swap-btn:disabled { background: #C9BEEF; cursor: default; }
+
+  .search-box {
+    display: flex; align-items: center; gap: 8px; background: white;
+    border: 1px solid #E5DFF7; border-radius: 12px; padding: 10px 14px; margin-bottom: 16px;
+  }
+  .search-box input { border: none; outline: none; background: transparent; width: 100%; font-size: 14px; color: #2A1F4D; }
+
+  .req-card {
+    background: white; border: 1px solid #E5DFF7; border-radius: 16px; padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+  }
+  .req-left { display: flex; align-items: center; gap: 12px; }
+  .req-status { font-size: 12px; color: #8B7FB8; margin-top: 2px; }
+  .req-actions { display: flex; gap: 8px; }
+  .icon-btn { width: 32px; height: 32px; border-radius: 999px; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .status-pill { font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 999px; }
+
+  .empty-state { text-align: center; padding: 40px 0; color: #8B7FB8; font-size: 14px; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #2A1F4D; color: white; padding: 10px 18px; border-radius: 999px;
+    font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); opacity: 0; pointer-events: none;
+    transition: opacity .2s ease; z-index: 50; max-width: 90vw; text-align: center;
+  }
+  .toast.show { opacity: 1; }
+
+  /* ---------- ADMIN ---------- */
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 700px) { .stat-row { grid-template-columns: 1fr 1fr; } }
+  .stat-card { background: white; border: 1px solid #E5DFF7; border-radius: 14px; padding: 16px; text-align: center; }
+  .stat-card .num { font-size: 24px; font-weight: 700; color: #6C4CE0; font-family: 'Fraunces', serif; }
+  .stat-card .lbl { font-size: 11px; color: #8B7FB8; text-transform: uppercase; letter-spacing: .04em; margin-top: 4px; }
+
+  table.admin-table { width: 100%; border-collapse: collapse; background: white; border-radius: 14px; overflow: hidden; border: 1px solid #E5DFF7; }
+  table.admin-table th {
+    background: #2A1F4D; color: white; text-align: left; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .03em; padding: 12px 14px; font-weight: 600;
+  }
+  table.admin-table td { padding: 12px 14px; font-size: 13px; border-top: 1px solid #F0EBFA; color: #3A2F60; }
+  table.admin-table tr:hover td { background: #FAF8FF; }
+  .table-wrap { overflow-x: auto; border-radius: 14px; }
+  .mini-tag { display: inline-block; background: #F1ECFC; color: #6C4CE0; font-size: 10px; padding: 2px 8px; border-radius: 999px; margin: 1px 2px 1px 0; }
+  .mini-tag.want { background: #FCEAF0; color: #D65D8A; }
+
+  /* ---------- HOW IT WORKS ---------- */
+  .how-it-works { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 26px; }
+  @media (max-width: 640px) { .how-it-works { grid-template-columns: 1fr; } }
+  .step-card {
+    background: white; border: 1px solid #E5DFF7; border-radius: 14px; padding: 16px;
+    text-align: center; position: relative;
+  }
+  .step-num {
+    width: 26px; height: 26px; border-radius: 999px; background: #6C4CE0; color: white;
+    display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
+    margin: 0 auto 8px;
+  }
+  .step-emoji { font-size: 22px; margin-bottom: 4px; }
+  .step-title { font-size: 13px; font-weight: 700; color: #2A1F4D; margin: 2px 0 4px; }
+  .step-desc { font-size: 11.5px; color: #8B7FB8; line-height: 1.4; }
+
+  /* ---------- FOOTER ---------- */
+  .site-footer {
+    text-align: center; padding: 22px 16px 28px; font-size: 11.5px; color: #A79BC9;
+    border-top: 1px solid #ECE6F9; margin-top: 30px;
+  }
+  .site-footer b { color: #8B7FB8; }
+  .site-footer .dot { margin: 0 6px; }
+
+  /* ---------- RATING WIDGET ---------- */
+  .rating-box { margin-top: 10px; padding: 12px; background: #FAF8FF; border: 1px solid #ECE6F9; border-radius: 12px; }
+  .star-row { display: flex; gap: 4px; margin-bottom: 8px; }
+  .star-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #D8D0EE; line-height: 1; padding: 2px; }
+  .star-btn.filled { color: #F0B429; }
+  .rating-textarea {
+    width: 100%; border: 1.5px solid #E0D8F5; border-radius: 8px; padding: 8px 10px; font-family: inherit;
+    font-size: 12.5px; resize: vertical; min-height: 44px; outline: none; color: #2A1F4D;
+  }
+  .rating-textarea:focus { border-color: #6C4CE0; }
+  .rating-submit { margin-top: 8px; padding: 7px 14px; border-radius: 8px; border: none; background: #6C4CE0; color: white; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .complete-btn { margin-top: 10px; padding: 8px 14px; border-radius: 10px; border: none; background: #2A1F4D; color: white; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .given-rating { font-size: 12px; color: #8B7FB8; margin-top: 6px; }
+
+  /* ---------- ADMIN TOOLBAR ---------- */
+  .admin-toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .admin-toolbar .search-box { flex: 1; min-width: 200px; margin-bottom: 0; }
+  .csv-btn {
+    display: flex; align-items: center; gap: 6px; background: #2A1F4D; color: white; border: none;
+    padding: 0 16px; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+  /* =========================================================
+     DATA LAYER — localStorage acts as the project "database".
+     In the full deployed version (see synopsis) this would be
+     replaced by Flask REST endpoints talking to SQLite/MySQL;
+     every function below is written so that swap is a drop-in
+     change (just replace db.* with fetch() calls).
+     ========================================================= */
+  const DB_KEY = "skillswap_db_v1";
+  const SESSION_KEY = "skillswap_session_v1";
+  const ADMIN_EMAIL = "admin@skillswap.edu";
+  const ADMIN_PASSWORD = "admin123";
+
+  const skillOptions = ["Excel", "Python", "Photoshop", "Guitar", "Public Speaking", "Video Editing", "Photography", "Canva Design", "Content Writing"];
+  const AVATAR_COLORS = ["#7A5CFA", "#E0895C", "#3E9C6E", "#D65D8A", "#2F8FBF"];
+
+  function seedUsers() {
+    return [
+      { id: "U1", name: "Riya Shah", email: "riya@college.edu", password: "password123", offers: ["Excel", "Public Speaking"], wants: ["Python", "Video Editing"], rating: 4.8, sessions: 6, joined: "2026-07-02" },
+      { id: "U2", name: "Aman Verma", email: "aman@college.edu", password: "password123", offers: ["Python", "Guitar"], wants: ["Excel", "Photography"], rating: 4.5, sessions: 4, joined: "2026-07-05" },
+      { id: "U3", name: "Priya Nair", email: "priya@college.edu", password: "password123", offers: ["Photography", "Canva Design"], wants: ["Public Speaking", "Excel"], rating: 4.9, sessions: 9, joined: "2026-07-10" },
+      { id: "U4", name: "Karan Mehta", email: "karan@college.edu", password: "password123", offers: ["Video Editing", "Photoshop"], wants: ["Guitar", "Python"], rating: 4.2, sessions: 3, joined: "2026-07-14" },
+      { id: "U5", name: "Sana Sheikh", email: "sana@college.edu", password: "password123", offers: ["Public Speaking", "Content Writing"], wants: ["Photoshop", "Canva Design"], rating: 4.7, sessions: 5, joined: "2026-07-18" },
+    ];
+  }
+
+  function loadDB() {
+    let raw = localStorage.getItem(DB_KEY);
+    if (!raw) {
+      const initial = { users: seedUsers(), requests: [] };
+      localStorage.setItem(DB_KEY, JSON.stringify(initial));
+      return initial;
+    }
+    try { return JSON.parse(raw); } catch (e) { const initial = { users: seedUsers(), requests: [] }; localStorage.setItem(DB_KEY, JSON.stringify(initial)); return initial; }
+  }
+  function saveDB(db) { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+
+  let db = loadDB();
+
+  function getSession() {
+    try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch (e) { return null; }
+  }
+  function setSession(s) { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+  function clearSession() { localStorage.removeItem(SESSION_KEY); }
+
+  function eyeIcon(visible) {
+    return visible
+      ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+      : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  }
+  function footerHTML() {
+    return `
+      <div class="site-footer">
+        <b>Skill Barter Platform</b> · TYCS Mini Project
+        <span class="dot">&middot;</span> Akansha Churi, Roll No. 12
+        <span class="dot">&middot;</span> HTML · CSS · JavaScript
+      </div>`;
+  }
+  function initials(name) { return name.split(" ").map(p => p[0]).join("").slice(0,2).toUpperCase(); }
+  function avatarColor(id) { let n = 0; for (const c of id) n += c.charCodeAt(0); return AVATAR_COLORS[n % AVATAR_COLORS.length]; }
+  function validEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg; t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2400);
+  }
+
+  /* =========================================================
+     APP STATE / ROUTER
+     ========================================================= */
+  let state = {
+    screen: "auth",        // auth | app | admin
+    authMode: "login",     // login | signup
+    tab: "matches",
+    query: "",
+    editingProfile: true,
+    ratingDrafts: {},
+    adminQuery: "",
+    switchOpen: false,
+  };
+
+  const session = getSession();
+  if (session && session.role === "admin") state.screen = "admin";
+  else if (session && session.role === "student") state.screen = "app";
+
+  function render() {
+    const root = document.getElementById("root");
+    if (state.screen === "auth") root.innerHTML = renderAuth();
+    else if (state.screen === "app") root.innerHTML = renderNav() + renderApp();
+    else if (state.screen === "admin") root.innerHTML = renderNav() + renderAdmin();
+    attachHandlers();
+  }
+
+  /* =========================================================
+     NAV
+     ========================================================= */
+  function renderNav() {
+    const s = getSession();
+    const isAdmin = s && s.role === "admin";
+    const user = !isAdmin && s ? db.users.find(u => u.id === s.userId) : null;
+    const title = isAdmin ? "Admin Dashboard" : "Trade what you know for what you want to learn";
+    return `
+      <div class="topnav">
+        <div class="topnav-inner">
+          <div class="brand">
+            <div class="brand-icon">&#8646;</div>
+            <div>
+              <h1 class="display-font">SkillSwap</h1>
+              <p>${title}</p>
+            </div>
+          </div>
+          <div class="nav-right">
+            ${isAdmin
+              ? `<span class="nav-pill">&#128274; Admin</span>`
+              : user ? `<span class="nav-pill"><span class="nav-avatar" style="background:${avatarColor(user.id)}; color:white;">${initials(user.name)}</span> ${user.name}</span>` : ""
+            }
+            ${!isAdmin ? `
+            <div class="switch-wrap">
+              <button class="switch-btn" id="switchToggle">&#8646; Switch Account ${state.switchOpen ? "&#9650;" : "&#9660;"}</button>
+              ${state.switchOpen ? `
+              <div class="switch-panel">
+                <div class="switch-panel-header">Switch to another account</div>
+                ${db.users.map(u => `
+                  <button class="switch-item ${user && u.id === user.id ? "current" : ""}" data-switch-user="${u.id}">
+                    <span class="avatar" style="background:${avatarColor(u.id)}">${initials(u.name)}</span>
+                    <span>
+                      <div class="switch-item-name">${u.name}${user && u.id === user.id ? " (current)" : ""}</div>
+                      <div class="switch-item-email">${u.email}</div>
+                    </span>
+                  </button>`).join("")}
+                <div class="switch-note">For demo purposes only — switches instantly without a password so you can show both sides of a request live.</div>
+              </div>` : ""}
+            </div>` : ""}
+            <button class="logout-btn" id="logoutBtn">Log out</button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  /* =========================================================
+     AUTH SCREEN
+     ========================================================= */
+  function renderAuth() {
+    const mode = state.authMode;
+    return `
+      <div class="auth-wrap">
+        <div class="auth-logo">
+          <div class="brand-icon">&#8646;</div>
+          <h1 class="display-font">SkillSwap</h1>
+          <p>Trade what you know for what you want to learn</p>
+        </div>
+
+        <div class="how-it-works">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <div class="step-emoji">&#128221;</div>
+            <div class="step-title">List your skills</div>
+            <div class="step-desc">Add what you can teach and what you'd love to learn.</div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <div class="step-emoji">&#10024;</div>
+            <div class="step-title">Get matched</div>
+            <div class="step-desc">We instantly find students whose skills complement yours.</div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <div class="step-emoji">&#11088;</div>
+            <div class="step-title">Swap &amp; rate</div>
+            <div class="step-desc">Arrange a session, then rate each other to build trust.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 style="margin:0 0 4px; font-size:17px;">${mode === "login" ? "Welcome back" : "Create your account"}</h2>
+          <p style="margin:0; font-size:12.5px; color:#8B7FB8;">${mode === "login" ? "Log in to view your matches and requests." : "Join your campus skill-exchange community."}</p>
+
+          ${mode === "signup" ? `
+          <label class="field-label">Full Name</label>
+          <input class="field-input" id="suName" placeholder="e.g. Akansha Churi" />` : ""}
+
+          <label class="field-label">College Email</label>
+          <input class="field-input" id="authEmail" placeholder="you@college.edu" />
+
+          <label class="field-label">Password</label>
+          <div class="password-wrap">
+            <input class="field-input" id="authPassword" type="password" placeholder="${mode === "login" ? "Your password" : "At least 6 characters"}" />
+            <button type="button" class="eye-toggle" data-eye-for="authPassword">${eyeIcon(false)}</button>
+          </div>
+
+          ${mode === "signup" ? `
+          <label class="field-label">Confirm Password</label>
+          <div class="password-wrap">
+            <input class="field-input" id="suConfirm" type="password" placeholder="Re-enter password" />
+            <button type="button" class="eye-toggle" data-eye-for="suConfirm">${eyeIcon(false)}</button>
+          </div>` : ""}
+
+          <div class="field-error" id="authError" style="display:none;"></div>
+
+          <button class="primary-btn" id="authSubmit">${mode === "login" ? "Log In" : "Sign Up"}</button>
+
+          <div class="auth-switch">
+            ${mode === "login"
+              ? `New here? <button class="link-btn" id="toSignup">Create an account</button>`
+              : `Already have an account? <button class="link-btn" id="toLogin">Log in</button>`
+            }
+          </div>
+          <div class="admin-link"><button id="toAdminLogin">Admin login</button></div>
+        </div>
+        <div class="auth-stats">
+          <div><b>${db.users.length}</b>Students</div>
+          <div><b>${db.users.reduce((a,u)=>a+u.sessions,0)}</b>Exchanges done</div>
+          <div><b>${skillOptions.length}</b>Skills listed</div>
+        </div>
+        ${footerHTML()}
+      </div>`;
+  }
+
+  /* =========================================================
+     STUDENT APP
+     ========================================================= */
+  function currentUser() {
+    const s = getSession();
+    return db.users.find(u => u.id === s.userId);
+  }
+
+  function computeMatches(me) {
+    return db.users.filter(u => u.id !== me.id).map(u => {
+      const theyGiveMeWhatIWant = u.offers.filter(x => me.wants.includes(x));
+      const iGiveThemWhatTheyWant = me.offers.filter(x => u.wants.includes(x));
+      const score = theyGiveMeWhatIWant.length * 2 + iGiveThemWhatTheyWant.length;
+      return { ...u, theyGiveMeWhatIWant, iGiveThemWhatTheyWant, score };
+    }).filter(u => u.theyGiveMeWhatIWant.length > 0 || u.iGiveThemWhatTheyWant.length > 0).sort((a,b)=>b.score-a.score);
+  }
+
+  function pendingRequestTo(fromId, toId) {
+    return db.requests.find(r => r.fromId === fromId && r.toId === toId && r.status === "pending");
+  }
+
+  function userCardHTML(u, extraLines, me) {
+    const pending = pendingRequestTo(me.id, u.id);
+    return `
+      <div class="match-card">
+        <div class="avatar-row">
+          <div class="avatar" style="background:${avatarColor(u.id)}">${initials(u.name)}</div>
+          <div>
+            <p class="user-name">${u.name}</p>
+            <div class="user-rating">&#9733; ${u.rating} · ${u.sessions} exchanges</div>
+          </div>
+        </div>
+        ${extraLines}
+        <button class="swap-btn" data-send-request="${u.id}" ${pending ? "disabled" : ""}>
+          ${pending ? "Request Sent" : "Send Swap Request"}
+        </button>
+      </div>`;
+  }
+
+  function renderApp() {
+    const me = currentUser();
+    const matches = computeMatches(me);
+    const pendingCount = db.requests.filter(r => r.toId === me.id && r.status === "pending").length;
+
+    let matchesHTML = matches.length === 0
+      ? `<div class="empty-state" style="grid-column:1/-1;">No matches yet — add skills you can teach and want to learn in your profile above.</div>`
+      : matches.map(u => {
+          let lines = "";
+          if (u.theyGiveMeWhatIWant.length) lines += `<p class="match-line give"><b>Can teach you:</b> ${u.theyGiveMeWhatIWant.join(", ")}</p>`;
+          if (u.iGiveThemWhatTheyWant.length) lines += `<p class="match-line want"><b>Wants to learn from you:</b> ${u.iGiveThemWhatTheyWant.join(", ")}</p>`;
+          return userCardHTML(u, lines, me);
+        }).join("");
+
+    const q = state.query.trim().toLowerCase();
+    const directory = db.users.filter(u => u.id !== me.id && (!q || u.name.toLowerCase().includes(q) || u.offers.some(s=>s.toLowerCase().includes(q)) || u.wants.some(s=>s.toLowerCase().includes(q))));
+    let directoryHTML = directory.map(u => userCardHTML(u,
+      `<p class="match-line give"><b>Teaches:</b> ${u.offers.join(", ")}</p><p class="match-line want"><b>Wants:</b> ${u.wants.join(", ")}</p>`, me)).join("")
+      || `<div class="empty-state" style="grid-column:1/-1;">No students match your search.</div>`;
+
+    const myRequests = db.requests.filter(r => r.fromId === me.id || r.toId === me.id).sort((a,b)=> b.id.localeCompare(a.id));
+    let requestsHTML = myRequests.length === 0 ? `<div class="empty-state">No swap requests yet.</div>` : myRequests.map(r => {
+      const incoming = r.toId === me.id;
+      const other = db.users.find(u => u.id === (incoming ? r.fromId : r.toId));
+      const alreadyRated = r.ratedBy === me.id;
+      const draft = state.ratingDrafts[r.id] || 0;
+
+      let statusLine;
+      if (r.status === "pending") statusLine = incoming ? "Awaiting your response…" : "Waiting for their response…";
+      else if (r.status === "accepted") statusLine = "Accepted — arrange your session!";
+      else if (r.status === "declined") statusLine = "Declined";
+      else if (r.status === "completed") statusLine = alreadyRated ? `You rated ${other.name} ${"\u2605".repeat(r.ratingScore)}` : "Marked complete";
+
+      let actionsHTML = "";
+      if (r.status === "pending" && incoming) {
+        actionsHTML = `<div class="req-actions">
+          <button class="icon-btn" style="background:#3E9C6E" data-respond="${r.id}" data-accept="1">&#10003;</button>
+          <button class="icon-btn" style="background:#D65D8A" data-respond="${r.id}" data-accept="0">&#10005;</button>
+        </div>`;
+      } else if (r.status === "accepted") {
+        actionsHTML = `<span class="status-pill" style="background:#E4F5EC; color:#3E9C6E">accepted</span>`;
+      } else if (r.status === "completed") {
+        actionsHTML = `<span class="status-pill" style="background:#F1ECFC; color:#6C4CE0">completed</span>`;
+      } else {
+        actionsHTML = `<span class="status-pill" style="background:#FCEAF0; color:#D65D8A">declined</span>`;
+      }
+
+      let extraRow = "";
+      if (r.status === "accepted") {
+        extraRow = `
+          <div class="rating-box" data-rating-box="${r.id}">
+            <p style="margin:0 0 6px;font-size:12px;font-weight:600;color:#5A4E85;">Completed your session with ${other.name}? Rate them:</p>
+            <div class="star-row">
+              ${[1,2,3,4,5].map(n => `<button class="star-btn ${draft >= n ? "filled" : ""}" data-star="${r.id}" data-value="${n}">&#9733;</button>`).join("")}
+            </div>
+            <textarea class="rating-textarea" placeholder="Optional feedback…" id="comment-${r.id}"></textarea><br/>
+            <button class="rating-submit" data-submit-rating="${r.id}">Submit &amp; Mark Complete</button>
+          </div>`;
+      } else if (r.status === "completed" && !alreadyRated) {
+        extraRow = `<p class="given-rating">Exchange marked complete by ${other.name}.</p>`;
+      }
+
+      return `
+        <div class="req-card" style="flex-direction:column; align-items:stretch;">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div class="req-left">
+              <div class="avatar" style="width:36px;height:36px;font-size:11px;background:${avatarColor(other.id)}">${initials(other.name)}</div>
+              <div>
+                <p style="margin:0;font-size:14px;font-weight:500;">${incoming ? "Request from" : "Swap with"} ${other.name}</p>
+                <p class="req-status">${statusLine}</p>
+              </div>
+            </div>
+            ${actionsHTML}
+          </div>
+          ${extraRow}
+        </div>`;
+    }).join("");
+
+    return `
+      <main>
+        <div class="card">
+          <div class="card-row">
+            <h2 class="display-font">Your Skill Profile</h2>
+            <button class="edit-btn" id="editToggle">${state.editingProfile ? "Done" : "Edit"}</button>
+          </div>
+          ${state.editingProfile ? `
+          <div class="skills-grid">
+            <div>
+              <div class="skills-label">I can teach</div>
+              <div class="chip-wrap">${skillOptions.map(s => `<button class="chip ${me.offers.includes(s)?"teach-on":""}" data-toggle="offers" data-skill="${s}">${s}</button>`).join("")}</div>
+            </div>
+            <div>
+              <div class="skills-label">I want to learn</div>
+              <div class="chip-wrap">${skillOptions.map(s => `<button class="chip ${me.wants.includes(s)?"learn-on":""}" data-toggle="wants" data-skill="${s}">${s}</button>`).join("")}</div>
+            </div>
+          </div>` : `
+          <div style="font-size:14px;"><b>Teach:</b> ${me.offers.join(", ") || "—"} &nbsp;&nbsp; <b>Learn:</b> ${me.wants.join(", ") || "—"}</div>`}
+        </div>
+
+        <div class="tabs">
+          <button class="tab-btn ${state.tab==='matches'?'active':''}" data-tab="matches">&#10024; Suggested Matches</button>
+          <button class="tab-btn ${state.tab==='directory'?'active':''}" data-tab="directory">&#128269; Browse Directory</button>
+          <button class="tab-btn ${state.tab==='requests'?'active':''}" data-tab="requests">&#8646; My Requests ${pendingCount ? `<span class="tab-badge">${pendingCount}</span>` : ""}</button>
+        </div>
+
+        ${state.tab === "matches" ? `<div class="grid2">${matchesHTML}</div>` : ""}
+        ${state.tab === "directory" ? `
+          <div class="search-box">&#128269; <input id="searchInput" placeholder="Search by name or skill" value="${state.query}" /></div>
+          <div class="grid2">${directoryHTML}</div>` : ""}
+        ${state.tab === "requests" ? `<div>${requestsHTML}</div>` : ""}
+        ${footerHTML()}
+      </main>`;
+  }
+
+  /* =========================================================
+     ADMIN DASHBOARD
+     ========================================================= */
+  function renderAdmin() {
+    const totalPending = db.requests.filter(r => r.status === "pending").length;
+    const totalAccepted = db.requests.filter(r => r.status === "accepted" || r.status === "completed").length;
+    const q = state.adminQuery.trim().toLowerCase();
+    const filteredUsers = db.users.filter(u => !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || u.offers.some(s=>s.toLowerCase().includes(q)) || u.wants.some(s=>s.toLowerCase().includes(q)));
+    const rows = filteredUsers.map(u => `
+      <tr>
+        <td>${u.name}</td>
+        <td>${u.email}</td>
+        <td>${u.offers.map(s=>`<span class="mini-tag">${s}</span>`).join("") || "—"}</td>
+        <td>${u.wants.map(s=>`<span class="mini-tag want">${s}</span>`).join("") || "—"}</td>
+        <td>&#9733; ${u.rating}</td>
+        <td>${u.sessions}</td>
+        <td>${u.joined}</td>
+      </tr>`).join("");
+
+    return `
+      <main>
+        <div class="stat-row">
+          <div class="stat-card"><div class="num">${db.users.length}</div><div class="lbl">Registered Students</div></div>
+          <div class="stat-card"><div class="num">${db.requests.length}</div><div class="lbl">Total Requests</div></div>
+          <div class="stat-card"><div class="num">${totalPending}</div><div class="lbl">Pending Requests</div></div>
+          <div class="stat-card"><div class="num">${totalAccepted}</div><div class="lbl">Accepted Swaps</div></div>
+        </div>
+
+        <div class="card-row" style="margin-bottom:12px;">
+          <h2 class="display-font" style="font-size:18px;">Student Database</h2>
+        </div>
+        <div class="admin-toolbar">
+          <div class="search-box">&#128269; <input id="adminSearch" placeholder="Search by name, email, or skill" value="${state.adminQuery}" /></div>
+          <button class="csv-btn" id="downloadCsv">&#11015; Download CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Name</th><th>Email</th><th>Skills Offered</th><th>Skills Wanted</th><th>Rating</th><th>Exchanges</th><th>Joined</th></tr></thead>
+            <tbody>${rows || `<tr><td colspan="7" style="text-align:center; color:#8B7FB8; padding:20px;">No students match your search.</td></tr>`}</tbody>
+          </table>
+        </div>
+        ${footerHTML()}
+      </main>`;
+  }
+
+  /* =========================================================
+     EVENT HANDLERS
+     ========================================================= */
+  function attachHandlers() {
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) logoutBtn.onclick = () => { clearSession(); state.screen = "auth"; state.authMode = "login"; state.switchOpen = false; render(); };
+
+    const switchToggle = document.getElementById("switchToggle");
+    if (switchToggle) switchToggle.onclick = (e) => { e.stopPropagation(); state.switchOpen = !state.switchOpen; render(); };
+
+    document.querySelectorAll("[data-switch-user]").forEach(btn => {
+      btn.onclick = () => {
+        const u = db.users.find(u => u.id === btn.dataset.switchUser);
+        setSession({ role: "student", userId: u.id });
+        state.screen = "app"; state.tab = "requests"; state.editingProfile = false; state.switchOpen = false;
+        render();
+        showToast(`Switched to ${u.name}.`);
+      };
+    });
+
+
+
+    if (state.screen === "auth") {
+      const toSignup = document.getElementById("toSignup");
+      const toLogin = document.getElementById("toLogin");
+      const toAdminLogin = document.getElementById("toAdminLogin");
+      if (toSignup) toSignup.onclick = () => { state.authMode = "signup"; render(); };
+      if (toLogin) toLogin.onclick = () => { state.authMode = "login"; render(); };
+      if (toAdminLogin) toAdminLogin.onclick = () => {
+        document.getElementById("authEmail").value = ADMIN_EMAIL;
+        showToast("Admin email filled in — enter the admin password.");
+      };
+      document.getElementById("authSubmit").onclick = () => handleAuthSubmit();
+
+      document.querySelectorAll("[data-eye-for]").forEach(btn => {
+        btn.onclick = () => {
+          const input = document.getElementById(btn.dataset.eyeFor);
+          const nowVisible = input.type === "password";
+          input.type = nowVisible ? "text" : "password";
+          btn.innerHTML = eyeIcon(nowVisible);
+        };
+      });
+    }
+
+    if (state.screen === "app") {
+      const editToggle = document.getElementById("editToggle");
+      if (editToggle) editToggle.onclick = () => { state.editingProfile = !state.editingProfile; render(); };
+
+      document.querySelectorAll("[data-toggle]").forEach(btn => {
+        btn.onclick = () => {
+          const me = currentUser();
+          const field = btn.dataset.toggle, skill = btn.dataset.skill;
+          const idx = me[field].indexOf(skill);
+          if (idx >= 0) me[field].splice(idx, 1); else me[field].push(skill);
+          saveDB(db); render();
+        };
+      });
+
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.onclick = () => { state.tab = btn.dataset.tab; render(); };
+      });
+
+      const searchInput = document.getElementById("searchInput");
+      if (searchInput) {
+        searchInput.oninput = (e) => { state.query = e.target.value; render(); searchInput.focus(); searchInput.selectionStart = searchInput.selectionEnd = searchInput.value.length; };
+      }
+
+      document.querySelectorAll("[data-send-request]").forEach(btn => {
+        btn.onclick = () => {
+          const me = currentUser();
+          const toId = btn.dataset.sendRequest;
+          if (pendingRequestTo(me.id, toId)) { showToast("Request already sent."); return; }
+          db.requests.unshift({ id: "R" + Date.now(), fromId: me.id, toId, status: "pending", date: new Date().toISOString().slice(0,10) });
+          saveDB(db);
+          const target = db.users.find(u => u.id === toId);
+          showToast(`Swap request sent to ${target.name}.`);
+          render();
+        };
+      });
+
+      document.querySelectorAll("[data-respond]").forEach(btn => {
+        btn.onclick = () => {
+          const r = db.requests.find(r => r.id === btn.dataset.respond);
+          r.status = btn.dataset.accept === "1" ? "accepted" : "declined";
+          saveDB(db); render();
+        };
+      });
+
+      document.querySelectorAll("[data-star]").forEach(btn => {
+        btn.onclick = () => {
+          state.ratingDrafts[btn.dataset.star] = parseInt(btn.dataset.value, 10);
+          render();
+        };
+      });
+
+      document.querySelectorAll("[data-submit-rating]").forEach(btn => {
+        btn.onclick = () => {
+          const reqId = btn.dataset.submitRating;
+          const score = state.ratingDrafts[reqId];
+          if (!score) { showToast("Please select a star rating first."); return; }
+          const r = db.requests.find(r => r.id === reqId);
+          const me = currentUser();
+          const otherId = r.fromId === me.id ? r.toId : r.fromId;
+          const other = db.users.find(u => u.id === otherId);
+          const newRating = Math.round((((other.rating * other.sessions) + score) / (other.sessions + 1)) * 10) / 10;
+          other.rating = newRating;
+          other.sessions += 1;
+          me.sessions += 1;
+          r.status = "completed";
+          r.ratedBy = me.id;
+          r.ratingScore = score;
+          const commentEl = document.getElementById("comment-" + reqId);
+          r.ratingComment = commentEl ? commentEl.value.trim() : "";
+          saveDB(db);
+          delete state.ratingDrafts[reqId];
+          showToast(`Thanks! You rated ${other.name} ${score}\u2605.`);
+          render();
+        };
+      });
+    }
+
+    if (state.screen === "admin") {
+      const adminSearch = document.getElementById("adminSearch");
+      if (adminSearch) {
+        adminSearch.oninput = (e) => {
+          state.adminQuery = e.target.value; render();
+          const el = document.getElementById("adminSearch");
+          el.focus(); el.selectionStart = el.selectionEnd = el.value.length;
+        };
+      }
+      const csvBtn = document.getElementById("downloadCsv");
+      if (csvBtn) csvBtn.onclick = downloadCSV;
+    }
+  }
+
+  function downloadCSV() {
+    const header = ["Name", "Email", "Skills Offered", "Skills Wanted", "Rating", "Exchanges", "Joined"];
+    const rows = db.users.map(u => [u.name, u.email, u.offers.join("; "), u.wants.join("; "), u.rating, u.sessions, u.joined]);
+    const csv = [header, ...rows].map(row => row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "skillswap_students.csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("Student data exported as CSV.");
+  }
+
+  function handleAuthSubmit() {
+    const errEl = document.getElementById("authError");
+    errEl.style.display = "none";
+    const email = document.getElementById("authEmail").value.trim();
+    const password = document.getElementById("authPassword").value;
+
+    function showErr(msg) { errEl.textContent = msg; errEl.style.display = "block"; }
+
+    if (!email || !password) return showErr("Please fill in all fields.");
+    if (!validEmail(email)) return showErr("Please enter a valid email address.");
+
+    // Admin login
+    if (email.toLowerCase() === ADMIN_EMAIL) {
+      if (password !== ADMIN_PASSWORD) return showErr("Incorrect admin password.");
+      setSession({ role: "admin" });
+      state.screen = "admin";
+      return render();
+    }
+
+    if (state.authMode === "login") {
+      const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+      if (!user) return showErr("No account found with that email.");
+      if (user.password !== password) return showErr("Incorrect password.");
+      setSession({ role: "student", userId: user.id });
+      state.screen = "app"; state.tab = "matches"; state.editingProfile = false;
+      render();
+      showToast(`Welcome back, ${user.name}!`);
+    } else {
+      const name = document.getElementById("suName").value.trim();
+      const confirm = document.getElementById("suConfirm").value;
+      if (!name) return showErr("Please enter your full name.");
+      if (password.length < 6) return showErr("Password must be at least 6 characters.");
+      if (password !== confirm) return showErr("Passwords do not match.");
+      if (db.users.find(u => u.email.toLowerCase() === email.toLowerCase())) return showErr("An account with this email already exists.");
+      const newUser = { id: "U" + Date.now(), name, email, password, offers: [], wants: [], rating: 0, sessions: 0, joined: new Date().toISOString().slice(0,10) };
+      db.users.push(newUser);
+      saveDB(db);
+      setSession({ role: "student", userId: newUser.id });
+      state.screen = "app"; state.tab = "matches"; state.editingProfile = true;
+      render();
+      showToast(`Account created — welcome, ${name}!`);
+    }
+  }
+
+  render();
+</script>
+
+</body>
+</html>
